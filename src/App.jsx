@@ -21,19 +21,18 @@ function App() {
   const mainRef = useRef(null)
   const cursorRef = useRef(null)
 
-  // Lenis smooth scroll
+  // Lenis hyper-smooth scroll
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.6,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      lerp: 0.075,
       smoothWheel: true,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+      wheelMultiplier: 0.8,
     })
-
-    function raf(time) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
-    }
-    requestAnimationFrame(raf)
 
     // Sync with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update)
@@ -47,15 +46,14 @@ function App() {
     }
   }, [])
 
-  // Cursor light follower — uses direct DOM manipulation to avoid re-renders
+  // Cursor light — GPU-accelerated via transform
   useEffect(() => {
     let rafId = null
     const handleMouseMove = (e) => {
       if (rafId) return
       rafId = requestAnimationFrame(() => {
         if (cursorRef.current) {
-          cursorRef.current.style.left = e.clientX + 'px'
-          cursorRef.current.style.top = e.clientY + 'px'
+          cursorRef.current.style.transform = `translate3d(${e.clientX - 150}px, ${e.clientY - 150}px, 0)`
         }
         rafId = null
       })

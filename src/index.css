@@ -21,9 +21,7 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* scroll-behavior: smooth is NOT used — Lenis handles smooth scrolling */
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -32,6 +30,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* ======================== SCROLLBAR ======================== */
@@ -325,15 +324,29 @@ body {
 /* ======================== CURSOR LIGHT ======================== */
 .cursor-light {
   position: fixed;
-  width: 400px;
-  height: 400px;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 245, 255, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 245, 255, 0.04) 0%, transparent 70%);
   pointer-events: none;
   z-index: 1;
-  transform: translate(-50%, -50%);
-  will-change: left, top;
+  will-change: transform;
+  backface-visibility: hidden;
   contain: layout style;
+  transform: translate3d(-300px, -300px, 0);
+}
+
+/* ======================== SCROLL PERFORMANCE ======================== */
+section {
+  contain: layout style;
+  will-change: auto;
+}
+
+.glass-card {
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 /* ======================== RESPONSIVE ======================== */

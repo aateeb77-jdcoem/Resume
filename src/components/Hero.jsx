@@ -225,7 +225,7 @@ export default function Hero() {
                             marginBottom: '12px',
                         }}
                     >
-                        Welcome to my universe
+                        Welcome to my portfolio
                     </motion.p>
 
                     <h1

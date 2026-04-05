@@ -131,6 +131,18 @@ function SkillSphere() {
 
 export default function Skills() {
     const sectionRef = useRef(null)
+    const canvasRef = useRef(null)
+    const [isVisible, setIsVisible] = useState(false)
+
+    // Only render canvas when visible
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsVisible(entry.isIntersecting),
+            { rootMargin: '200px' }
+        )
+        if (canvasRef.current) observer.observe(canvasRef.current)
+        return () => observer.disconnect()
+    }, [])
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -169,22 +181,24 @@ export default function Skills() {
             </div>
 
             {/* 3D skill sphere */}
-            <div className="skills-canvas" style={{
+            <div ref={canvasRef} className="skills-canvas" style={{
                 height: '500px',
                 borderRadius: '24px',
                 overflow: 'hidden',
                 position: 'relative',
             }}>
-                <Canvas
-                    camera={{ position: [0, 0, 8], fov: 50 }}
-                    dpr={[1, 1]}
-                    gl={{ antialias: true, alpha: true }}
-                    style={{ background: 'transparent' }}
-                >
-                    <ambientLight intensity={0.4} />
-                    <pointLight position={[10, 10, 10]} intensity={0.5} />
-                    <SkillSphere />
-                </Canvas>
+                {isVisible && (
+                    <Canvas
+                        camera={{ position: [0, 0, 8], fov: 50 }}
+                        dpr={[1, 1]}
+                        gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
+                        style={{ background: 'transparent' }}
+                    >
+                        <ambientLight intensity={0.4} />
+                        <pointLight position={[10, 10, 10]} intensity={0.5} />
+                        <SkillSphere />
+                    </Canvas>
+                )}
             </div>
 
             {/* Category legend */}

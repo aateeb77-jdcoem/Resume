@@ -4,7 +4,7 @@ import * as THREE from 'three'
 
 function Particles() {
     const meshRef = useRef()
-    const count = 300
+    const count = 150 // Reduced from 300
 
     const [positions, colors] = useMemo(() => {
         const pos = new Float32Array(count * 3)
@@ -15,11 +15,10 @@ function Particles() {
             pos[i * 3 + 1] = (Math.random() - 0.5) * 50
             pos[i * 3 + 2] = (Math.random() - 0.5) * 50
 
-            // Mix between neon blue and electric purple
             const t = Math.random()
-            col[i * 3] = THREE.MathUtils.lerp(0, 0.48, t)       // R
-            col[i * 3 + 1] = THREE.MathUtils.lerp(0.96, 0.38, t) // G
-            col[i * 3 + 2] = THREE.MathUtils.lerp(1, 1, t)       // B
+            col[i * 3] = THREE.MathUtils.lerp(0, 0.48, t)
+            col[i * 3 + 1] = THREE.MathUtils.lerp(0.96, 0.38, t)
+            col[i * 3 + 2] = THREE.MathUtils.lerp(1, 1, t)
         }
         return [pos, col]
     }, [])
@@ -62,12 +61,12 @@ function Particles() {
 
 function NeuralConnections() {
     const lineRef = useRef()
-    const nodeCount = 20
+    const nodeCount = 12 // Reduced from 20
 
-    const [nodes, linePositions] = useMemo(() => {
-        const n = []
+    const linePositions = useMemo(() => {
+        const nodes = []
         for (let i = 0; i < nodeCount; i++) {
-            n.push(new THREE.Vector3(
+            nodes.push(new THREE.Vector3(
                 (Math.random() - 0.5) * 30,
                 (Math.random() - 0.5) * 30,
                 (Math.random() - 0.5) * 20
@@ -75,16 +74,16 @@ function NeuralConnections() {
         }
 
         const linePos = []
-        for (let i = 0; i < n.length; i++) {
-            for (let j = i + 1; j < n.length; j++) {
-                if (n[i].distanceTo(n[j]) < 8) {
-                    linePos.push(n[i].x, n[i].y, n[i].z)
-                    linePos.push(n[j].x, n[j].y, n[j].z)
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                if (nodes[i].distanceTo(nodes[j]) < 8) {
+                    linePos.push(nodes[i].x, nodes[i].y, nodes[i].z)
+                    linePos.push(nodes[j].x, nodes[j].y, nodes[j].z)
                 }
             }
         }
 
-        return [n, new Float32Array(linePos)]
+        return new Float32Array(linePos)
     }, [])
 
     useFrame((state) => {
@@ -128,13 +127,27 @@ export default function ParticleField() {
                 camera={{ position: [0, 0, 15], fov: 60 }}
                 style={{ background: 'transparent' }}
                 dpr={[1, 1]}
-                frameloop="always"
-                gl={{ antialias: true, alpha: true }}
+                frameloop="demand"
+                gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
+                performance={{ min: 0.5 }}
             >
                 <Particles />
                 <NeuralConnections />
                 <ambientLight intensity={0.1} />
+                <FrameInvalidator />
             </Canvas>
         </div>
     )
+}
+
+// Only re-render every 2nd frame (~30fps) instead of 60fps
+function FrameInvalidator() {
+    const frameCount = useRef(0)
+    useFrame(({ invalidate }) => {
+        frameCount.current++
+        if (frameCount.current % 2 === 0) {
+            invalidate()
+        }
+    })
+    return null
 }
